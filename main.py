@@ -2,64 +2,78 @@
 """
 Mediante este script se implementará el algoritmo de colas cerradas y se representará el resultado en una gráfica.
 """
-
+import pprint
 
 
 def main():
     global RVisita, Qi, TServicio, Respuesta, ZReflexion
 
-    print("Inserte razones de visita separadas por comas:")
-
-    RVisita = input().split(",")
-    print("Inserte tiempos de servicios separados por comas:")
-    TServicio = input().split(",")
-    dispositivos = len(RVisita)
-
     print("Inserte N:")
     nmax = int(input())
+
+    print("Inserte razones de visita separadas por comas:")
+
+    RVisita_str = input().split(",")
+
+    # Se convierte la lista de str a lista de int
+    RVisita = [int(i) for i in RVisita_str]
+
+    print("Inserte tiempos de servicios separados por comas:")
+    TServicio_str = input().split(",")
+    # Se convierte la lista de str a lista de int
+    TServicio = [float(i) for i in TServicio_str]
+    pprint.pprint(TServicio)
+
+    dispositivos = len(RVisita)
+
     print("Inserte Z:")
     ZReflexion = int(input())
 
     # The device response time
     # Ri(N) = Si (1+Qi(N-1))
-    Respuesta = [len(RVisita)][0]
+    print(dispositivos, nmax)
+    Respuesta = [[float(0) for i in range(nmax)] for j in range(dispositivos)]
 
+    pprint.pprint(Respuesta)
     # The device queue lengths Qi(n) == Ni(n) with N jobs in the network using Little's law are:
     # Qi(n) = X(n) * Vi * Ri(n)
-    Qi = [len(RVisita)][0]
-
+    Qi = [[float(0) for i in range(nmax)] for j in range(dispositivos)]
     # R(n) = Sum(i=1,K)Vi * Ri(n)
-    R = [0]
+    R = [float(0) for i in range(nmax)]
 
     # X(n) = n / Z + R(n)
 
-    X = [0]
+    X = [float(0) for i in range(nmax)]
 
     # The device queue lengths Ni(n) with N jobs in the network using Little's law are:
 
-    Xi = [len(RVisita)][0]
-    Ui = [len(RVisita)][0]
+    Xi = [[float(0) for i in range(nmax)] for j in range(dispositivos)]
+    Ui = [[float(0) for i in range(nmax)] for j in range(dispositivos)]
 
-    for i in range(dispositivos):
-        Qi[i].append(0)
-    users = 0
-
-    users += 1
-
-    for users in range(nmax):
-
-        for i in range(dispositivos):
-            Respuesta[i].append(TServicio[i] * (1 + Qi[i][users - 1]))
+    for users in range(1, nmax):
 
         sum = 0
         for i in range(dispositivos):
-            sum += Respuesta[i] * RVisita[i]
-        R.append(sum)
-
-        X.append(users / (ZReflexion + R[len(R)]))
+            print("Escribiendo en respuesta", i, users)
+            Respuesta[i][users] = (TServicio[i] * (1 + Qi[i][users - 1]))
+            sum += Respuesta[i][users] * RVisita[i]
+        R[users] = sum
+        pprint.pprint(R[users])
 
         for i in range(dispositivos):
-            Qi[i].append(X[i] * Respuesta[i][0] * RVisita[i])
+            X[users] = (users / (ZReflexion + R[users]))
+            Qi[i][users] = (X[i] * Respuesta[i][users] * RVisita[i])
+            Xi[i][users] = (X[users] * Respuesta[i][users])
+            Ui[i][users] = (X[users] * RVisita[i] * TServicio[i])
+            print("funciones done", users)
+
+    print("Respuesta:")
+    print("R:", R)
+    print("X:", X)
+    print("Ri:", Respuesta)
+    print("Qi:", Qi)
+    print("Xi:", Xi)
+    print("Ui:", Ui)
 
 
 if __name__ == '__main__':
