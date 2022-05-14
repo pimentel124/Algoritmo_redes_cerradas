@@ -2,7 +2,7 @@
 """
 Mediante este script se implementará el algoritmo de colas cerradas y se representará el resultado en una gráfica.
 """
-from typing import List
+
 
 
 def main():
