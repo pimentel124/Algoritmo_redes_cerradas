@@ -4,6 +4,8 @@ Mediante este script se implementará el algoritmo de colas cerradas y se repres
 """
 import pprint
 
+import pandas as pd
+import matplotlib.pyplot as plt
 
 def main():
     global RVisita, Qi, TServicio, Respuesta, ZReflexion
@@ -66,6 +68,29 @@ def main():
             Xi[i][users] = (X[users] * Respuesta[i][users])
             Ui[i][users] = (X[users] * RVisita[i] * TServicio[i])
             print("funciones done", users)
+
+    # convert all lists to dataframes
+    df_R = pd.DataFrame(R)
+    df_X = pd.DataFrame(X)
+    df_Ri = pd.DataFrame(Respuesta)
+    df_Qi = pd.DataFrame(Qi)
+    df_Xi = pd.DataFrame(Xi)
+    df_Ui = pd.DataFrame(Ui)
+
+    # plot the dataframes with the titles
+
+    df_R.plot(title="R(n)")
+    plt.show()
+    df_X.plot(title="X(n)")
+    plt.show()
+    df_Ri.plot(title="Ri(n)")
+    plt.show()
+    df_Qi.plot(title="Qi(n)")
+    plt.show()
+    df_Xi.plot(title="Xi(n)")
+    plt.show()
+    df_Ui.plot(title="Ui(n)")
+    plt.show()
 
     print("Respuesta:")
     print("R:", R)
