@@ -7,8 +7,8 @@ el resultado en una gráfica.
 def test():
     N = 10 + 1
     Z = 8
-    Vi = [1, 1, 1]
-    Si = [0, 0, 0]
+    Vi = [8, 7]
+    Si = [0.03, 0.1]
     Num_disp = len(Vi)
     MVA(N, Z, Num_disp, Vi, Si)
 
