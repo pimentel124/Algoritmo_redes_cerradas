@@ -7,99 +7,98 @@ import pprint
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def main():
-    global RVisita, Qi, TServicio, Respuesta, ZReflexion
 
-    print("Inserte N:")
-    nmax = int(input())
+def test():
+    N = 3 + 1
+    Z = 5
+    Vi = [0.03, 0.5]
+    Si = [15, 14]
+    Num_disp = 2
+    MVA(N, Z, Num_disp, Vi, Si)
 
-    print("Inserte razones de visita separadas por comas:")
 
-    RVisita_str = input().split(",")
+def MVA(N, Z, Num_disp, Si, Vi):
+    Ni = []
+    Ri = []
+    Xi = []
+    X0 = 0.0
+    Di = []
+    D = 0
+    Dmax = -1
+    _list_X0 = []
+    _list_R = []
 
-    # Se convierte la lista de str a lista de int
-    RVisita = [int(i) for i in RVisita_str]
+    Di = [(a * b) for a, b in zip(Si, Vi)]
+    D = sum(Di)
+    Dmax = max(Di)
 
-    print("Inserte tiempos de servicios separados por comas:")
-    TServicio_str = input().split(",")
-    # Se convierte la lista de str a lista de int
-    TServicio = [float(i) for i in TServicio_str]
-    pprint.pprint(TServicio)
+    print_header(Num_disp)
 
-    dispositivos = len(RVisita)
+    for i in range(Num_disp):
+        Ni.append(0.0)
+        Ri.append(0.0)
+        Xi.append(0.0)
 
-    print("Inserte Z:")
-    ZReflexion = int(input())
+    n = 0
+    for n in range(N):
+        for i in range(Num_disp):
+            Ri[i] = Si[i] * (1 + Ni[i])
+        R = sum([a * b for a, b in zip(Ri, Vi)])
+        _list_R.append(R)
 
-    # The device response time
-    # Ri(N) = Si (1+Qi(N-1))
-    print(dispositivos, nmax)
-    Respuesta = [[float(0) for i in range(nmax)] for j in range(dispositivos)]
+        X0 = (n / (R + Z))
+        _list_X0.append(X0)
 
-    pprint.pprint(Respuesta)
-    # The device queue lengths Qi(n) == Ni(n) with N jobs in the network using Little's law are:
-    # Qi(n) = X(n) * Vi * Ri(n)
-    Qi = [[float(0) for i in range(nmax)] for j in range(dispositivos)]
-    # R(n) = Sum(i=1,K)Vi * Ri(n)
-    R = [float(0) for i in range(nmax)]
+        Ui = [((a * b) * X0) for a, b in zip(Si, Vi)]
 
-    # X(n) = n / Z + R(n)
+        for i in range(Num_disp):
+            Ni[i] = X0 * Vi[i] * Ri[i]
+            Xi[i] = X0 * Vi[i]
+        if (n > 0):
+            printInfoTable(X0, Xi, Ni, Ri, Ui, R, n, Num_disp)
 
-    X = [float(0) for i in range(nmax)]
 
-    # The device queue lengths Ni(n) with N jobs in the network using Little's law are:
+def print_header(Num_disp):
+    print("iter\t",
 
-    Xi = [[float(0) for i in range(nmax)] for j in range(dispositivos)]
-    Ui = [[float(0) for i in range(nmax)] for j in range(dispositivos)]
+          "X\t", end="")
+    for i in range(Num_disp):
+        print(
+            "X_", i+1, "\t", end="")
+    for i in range(Num_disp):
+        print(
+            "N_", i+1, "\t", end="")
+    for i in range(Num_disp):
+        print(
+            "R_", i+1, "\t", end="")
+    for i in range(Num_disp):
+        print(
+            "U_", i+1, "\t", end="")
+    print(
+        "R\t")
 
-    for users in range(1, nmax):
+    print(
+        "--------------------------------------------------------------------------------------------------------------------------------------------------------------")
 
-        sum = 0
-        for i in range(dispositivos):
-            print("Escribiendo en respuesta", i, users)
-            Respuesta[i][users] = (TServicio[i] * (1 + Qi[i][users - 1]))
-            sum += Respuesta[i][users] * RVisita[i]
-        R[users] = sum
-        pprint.pprint(R[users])
 
-        for i in range(dispositivos):
-            X[users] = (users / (ZReflexion + R[users]))
-            Qi[i][users] = (X[i] * Respuesta[i][users] * RVisita[i])
-            Xi[i][users] = (X[users] * Respuesta[i][users])
-            Ui[i][users] = (X[users] * RVisita[i] * TServicio[i])
-            print("funciones done", users)
+def printInfoTable(X0, Xi, Ni, Ri, Ui, R, n, Num_disp):
 
-    # convert all lists to dataframes
-    df_R = pd.DataFrame(R)
-    df_X = pd.DataFrame(X)
-    df_Ri = pd.DataFrame(Respuesta)
-    df_Qi = pd.DataFrame(Qi)
-    df_Xi = pd.DataFrame(Xi)
-    df_Ui = pd.DataFrame(Ui)
+    print(n, "\t",
+          round(X0, 3), "\t", end="")
+    for i in range(Num_disp):
+        print(round(Xi[i], 3), "\t", end="")
 
-    # plot the dataframes with the titles
-
-    df_R.plot(title="R(n)")
-    plt.show()
-    df_X.plot(title="X(n)")
-    plt.show()
-    df_Ri.plot(title="Ri(n)")
-    plt.show()
-    df_Qi.plot(title="Qi(n)")
-    plt.show()
-    df_Xi.plot(title="Xi(n)")
-    plt.show()
-    df_Ui.plot(title="Ui(n)")
-    plt.show()
-
-    print("Respuesta:")
-    print("R:", R)
-    print("X:", X)
-    print("Ri:", Respuesta)
-    print("Qi:", Qi)
-    print("Xi:", Xi)
-    print("Ui:", Ui)
+    for i in range(Num_disp):
+        print(round(Ni[i], 3), "\t", end="")
+    for i in range(Num_disp):
+        print(
+            round(Ri[i], 3), "\t", end="")
+    for i in range(Num_disp):
+        print(
+            round(Ui[i], 3), "\t", end="")
+    print(
+        round(R, 3))
 
 
 if __name__ == '__main__':
-    main()
+    test()
